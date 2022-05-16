@@ -1,27 +1,31 @@
-from app import create_app,db
-from flask_script import Manager,Server
-from app.models import User, Comment, Post
-from  flask_migrate import Migrate, MigrateCommand
+import os
+class Config:
+    '''
+    General configuration parent class
+    '''
+    SECRET_KEY = os.environ.get('SECRET_KEY')
+    UPLOADED_PHOTOS_DEST ='app/static/photos'
+    MAIL_SERVER = 'smtp.googlemail.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD") 
+    SIMPLEMDE_JS_IIFE = True
+    SIMPLEMDE_USE_CDN = True
+    
+class ProdConfig(Config):
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
 
-# Creating app instance
-app = create_app('production')
+class DevConfig(Config):
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URL_DEV")
+    DEBUG = True
 
-manager = Manager(app)
-manager.add_command('server',Server)
+class TestConfig(Config):
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URL_TEST")
 
-migrate = Migrate(app,db)
-manager.add_command('db',MigrateCommand)
-
-@manager.command
-def test():
-    """Run the unit tests."""
-    import unittest
-    tests = unittest.TestLoader().discover('tests')
-    unittest.TextTestRunner(verbosity=2).run(tests)
-
-@manager.shell #shell is used to test features in our app and for debugging
-def make_shell_context():
-    return dict(app = app,db = db,User = User, Comment= Comment, Post=Post)
-
-if __name__ == '__main__':
-    manager.run()
+config_options = {
+    'development':DevConfig,
+    'production':ProdConfig,
+    'test':TestConfig
+}
