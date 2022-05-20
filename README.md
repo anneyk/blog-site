@@ -5,7 +5,7 @@ A personal blogging website where you can create and share your opinions and oth
 Annet Khavere
 
 ## Live Link
-http://127.0.0.1:5000/login?next=%2F
+(https://blogsiteapp42.herokuapp.com/)
 
 ## User Story
 
